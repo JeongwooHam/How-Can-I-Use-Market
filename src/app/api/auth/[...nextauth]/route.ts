@@ -16,10 +16,10 @@ const handler = NextAuth({
       // credentials 객체에 어떤 필드가 제출되어야 할 지 지정할 수 있다.
       // <input> 태그에 전달할 HTML 속성을 추가할 수 있다.
       credentials: {
-        id: {
-          label: "Id",
+        email: {
+          label: "email",
           type: "text",
-          placeholder: "아이디를 입력해주세요.",
+          placeholder: "이메일 주소를 입력해주세요.",
         },
         password: {
           label: "Password",
@@ -31,22 +31,23 @@ const handler = NextAuth({
       // 사용자가 제출한 자격 증명을 받아 사용자를 찾고 인증을 수행한다.
       // DB나 외부 서비스를 사용하여 사용자를 찾는 로직이 들어간다.
       async authorize(credentials, req) {
-        // Add logic here to look up the user from the credentials supplied
-        const user = {
-          id: "1",
-          password: 1111,
-          name: "J Smith",
-          email: "jsmith@example.com",
-        };
+        const res = await fetch(`${process.env.NEXTAUTH_URL}/api/signin`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: credentials?.email,
+            password: credentials?.password,
+          }),
+        });
+
+        const user = await res.json();
 
         if (user) {
-          // Any object returned will be saved in `user` property of the JWT
           return user;
         } else {
-          // If you return null then an error will be displayed advising the user to check their details.
           return null;
-
-          // You can also Reject this callback with an Error thus the user will be sent to the error page with the error message as a query parameter
         }
       },
     }),

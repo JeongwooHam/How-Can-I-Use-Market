@@ -1,6 +1,4 @@
-"use client";
-
-import { signIn, signOut, useSession } from "next-auth/react";
+import { AuthButtons } from "@/components/buttons/auth";
 import Link from "next/link";
 
 type NavItemProps = {
@@ -8,8 +6,6 @@ type NavItemProps = {
 };
 
 const NavItem: React.FC<NavItemProps> = ({ mobile }) => {
-  const { data: session, status } = useSession();
-  console.log("session", session, status);
   return (
     <ul
       className='flex w-full justify-center gap-3 font-bold'
@@ -21,20 +17,7 @@ const NavItem: React.FC<NavItemProps> = ({ mobile }) => {
       <li className='p-2 cursor-pointer text-slate-300 hover:text-black cursor-pointer'>
         <Link href='/user'>USER</Link>
       </li>
-      {!session?.user && (
-        <li className='p-2 cursor-pointer text-slate-300 hover:text-black cursor-pointer'>
-          <Link href='/admin' onClick={() => signIn()}>
-            로그인
-          </Link>
-        </li>
-      )}
-      {session?.user && (
-        <li className='p-2 cursor-pointer text-slate-300 hover:text-black cursor-pointer'>
-          <Link href='/admin' onClick={() => signOut()}>
-            로그아웃
-          </Link>
-        </li>
-      )}
+      <AuthButtons />
     </ul>
   );
 };
