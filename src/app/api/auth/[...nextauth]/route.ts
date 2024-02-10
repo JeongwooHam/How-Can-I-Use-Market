@@ -1,11 +1,13 @@
 import prisma from "@/app/libs/prisma";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
+import { NextAuthOptions } from "next-auth";
 import NextAuth from "next-auth/next";
 // CredentialsProvider: 사용자명, 비밀번호와 같은 인증을 제공하는 NextAuth의 Provider
 import CredentialsProvider from "next-auth/providers/credentials";
 
-// 사용자 인증 handler, Next.js API 라우트에서 사용된다.
-const handler = NextAuth({
+// auth options
+export const authOptions = {
+  // 사용자 인증 handler, Next.js API 라우트에서 사용된다.
   adapter: PrismaAdapter(prisma),
   // 인증 제공자 설정: CredentialsProvider 외에도 google, github 등 간편 로그인 Provider도 설정 가능
   providers: [
@@ -52,6 +54,22 @@ const handler = NextAuth({
       },
     }),
   ],
-});
+  session: {
+    strategy: "jwt",
+  },
+  // 로그인 폼에서 email과 password를 입력하고 제출 버튼을 눌렀을 때 authorize 로직 수행 후 실행되는 부분
+  // next auth에서 사용하는 session에 accessToken을 포함시켜준다.
+  callbacks: {
+    async jwt({ token, user }) {
+      return { ...token, user };
+    },
+    async session({ session, token }) {
+      session.user = token as any;
+      return session;
+    },
+  },
+} satisfies NextAuthOptions;
+
+const handler = NextAuth(authOptions);
 
 export { handler as GET, handler as POST };

@@ -6,7 +6,6 @@ import { PropsWithChildren } from "react";
 
 export const AuthButtons = () => {
   const { data: session, status } = useSession();
-  console.log("session", session, status);
 
   if (!session?.user)
     return (

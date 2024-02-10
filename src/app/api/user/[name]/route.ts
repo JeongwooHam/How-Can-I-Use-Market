@@ -1,10 +1,18 @@
+import { verifyJwtAccessToken } from "@/app/libs/jwt";
 import prisma from "@/app/libs/prisma";
 
 export async function GET(
   request: Request,
   { params }: { params: { name: string } }
 ) {
-  // Prisma Model에서 id는 int 타입이므로 Number 타입으로의 형변환이 필요하다.
+  // accessToken으로 세션 보호하기
+  const accessToken = request.headers.get("authorization");
+  if (!accessToken || !verifyJwtAccessToken(accessToken)) {
+    return new Response(JSON.stringify({ error: "No Authorization" }), {
+      status: 401,
+    });
+  }
+
   const authorName = params.name;
   const targetPosts = await prisma.post.findMany({
     where: {
